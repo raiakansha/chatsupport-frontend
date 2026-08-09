@@ -1,15 +1,45 @@
-import React from 'react'
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
-export const MessageBubble = ({ key, author, at, children }) => {
-    const isMe = author;
+/**
+ * MessageBubble — renders a single chat message.
+ * Bot messages use ReactMarkdown so that Anaya's structured responses
+ * (ticket details, bullet lists, bold text, code) render properly.
+ */
+export const MessageBubble = ({ author, at, children }) => {
+    const isUser = author === "user";
+
     return (
-        <div className={`flex ${isMe == "user" ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-[65%] rounded-2xl px-3 py-2 shadow-sm ${isMe == "user" ? "bg-blue-500 text-white" : "bg-gray-200 text-black"}`}>
-                <p className="whitespace-pre-wrap wrap-break-word leading-relaxed">{children}</p>
-                <div className={`mt-1 text-[10px] ${isMe == "user" ? "text-white/70" : "text-muted-foreground"}`}>
+        <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+            <div
+                className={`max-w-[72%] rounded-2xl px-4 py-2.5 shadow-sm ${
+                    isUser
+                        ? "bg-gradient-to-br from-blue-500 to-violet-600 text-white"
+                        : "bg-muted text-foreground"
+                }`}
+            >
+                {isUser ? (
+                    /* User message — plain text */
+                    <p className="whitespace-pre-wrap break-words leading-relaxed text-sm">
+                        {children}
+                    </p>
+                ) : (
+                    /* Bot message — rendered Markdown */
+                    <div className="markdown-body text-sm leading-relaxed">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {children}
+                        </ReactMarkdown>
+                    </div>
+                )}
+                <div
+                    className={`mt-1 text-[10px] ${
+                        isUser ? "text-white/60 text-right" : "text-muted-foreground"
+                    }`}
+                >
                     {at}
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
